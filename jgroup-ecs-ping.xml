@@ -1,0 +1,11 @@
+<CONFIG>
+    <!-- Define the transport protocol (TCP) -->
+    <TCP bind_addr="0.0.0.0" bind_port="7800" />
+
+    <!-- Add your custom ECSTaskPingProtocol -->
+    <ECSTaskPingProtocol clusterName="your-cluster-name" serviceName="your-service-name" />
+
+    <!-- Other protocols like FD (failure detection), etc. -->
+    <FD_ALL timeout="3000" />
+    <VERIFY_SUSPECT />
+</CONFIG>
