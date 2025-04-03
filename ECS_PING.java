@@ -1,16 +1,23 @@
 import org.jgroups.Address;
 import org.jgroups.PhysicalAddress;
-import org.jgroups.stack.IpAddress;
-import org.jgroups.protocols.PING;
+import org.jgroups.View;
 import org.jgroups.annotations.Property;
+import org.jgroups.protocols.PING;
+import org.jgroups.stack.IpAddress;
+import org.jgroups.util.Responses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.*;
 
 import java.net.InetAddress;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class ECS_PING extends PING {
+
+    private static final Logger log = LoggerFactory.getLogger(ECS_PING.class);
 
     @Property(description = "AWS ECS Cluster Name")
     private String ecsClusterName;
@@ -19,19 +26,51 @@ public class ECS_PING extends PING {
     private String ecsServiceName;
 
     private final EcsClient ecsClient = EcsClient.create();
+    private final Set<PhysicalAddress> discoveredAddresses = new HashSet<>();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    @Override
+    public void init() throws Exception {
+        super.init();
+        startPeriodicTaskDiscovery();
+    }
 
     @Override
     protected void findMembers(List<Address> members, boolean initialDiscovery, Responses responses) {
-        List<String> ipAddresses = getECSTaskIPs();
+        log.info("Running ECS_PING findMembers");
+        updateClusterNodes();
 
-        for (String ip : ipAddresses) {
-            try {
-                InetAddress inetAddress = InetAddress.getByName(ip);
-                PhysicalAddress physicalAddr = new IpAddress(inetAddress, bind_port);
-                responses.addResponse(null, physicalAddr);
-            } catch (Exception e) {
-                log.error("Failed to resolve IP address for ECS task", e);
+        for (PhysicalAddress addr : discoveredAddresses) {
+            responses.addResponse(null, addr);
+        }
+    }
+
+    @Override
+    public void viewAccepted(View view) {
+        super.viewAccepted(view);
+        log.info("Updated cluster view: " + view);
+    }
+
+    private void startPeriodicTaskDiscovery() {
+        scheduler.scheduleAtFixedRate(this::updateClusterNodes, 10, 30, TimeUnit.SECONDS);
+    }
+
+    private void updateClusterNodes() {
+        try {
+            List<String> ipAddresses = getECSTaskIPs();
+            Set<PhysicalAddress> newAddresses = ipAddresses.stream()
+                .map(this::toPhysicalAddress)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+            synchronized (discoveredAddresses) {
+                discoveredAddresses.clear();
+                discoveredAddresses.addAll(newAddresses);
             }
+
+            log.info("Updated discovered nodes: {}", discoveredAddresses);
+        } catch (Exception e) {
+            log.error("Failed to fetch ECS task IPs", e);
         }
     }
 
@@ -44,7 +83,7 @@ public class ECS_PING extends PING {
 
             ListTasksResponse listTasksResponse = ecsClient.listTasks(listTasksRequest);
             if (listTasksResponse.taskArns().isEmpty()) {
-                return List.of();
+                return Collections.emptyList();
             }
 
             DescribeTasksRequest describeTasksRequest = DescribeTasksRequest.builder()
@@ -54,14 +93,4 @@ public class ECS_PING extends PING {
 
             DescribeTasksResponse describeTasksResponse = ecsClient.describeTasks(describeTasksRequest);
 
-            return describeTasksResponse.tasks().stream()
-                    .flatMap(task -> task.containers().stream())
-                    .map(container -> container.networkInterfaces().get(0).privateIpv4Address())
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("Failed to fetch ECS task IPs", e);
-            return List.of();
-        }
-    }
-}
+            return describeTasksResponse.tasks
