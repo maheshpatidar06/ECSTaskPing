@@ -93,4 +93,24 @@ public class ECS_PING extends PING {
 
             DescribeTasksResponse describeTasksResponse = ecsClient.describeTasks(describeTasksRequest);
 
-            return describeTasksResponse.tasks
+            return describeTasksResponse.tasks().stream()
+                    .flatMap(task -> task.containers().stream())
+                    .map(container -> container.networkInterfaces().get(0).privateIpv4Address())
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.error("Error fetching ECS task IPs", e);
+            return Collections.emptyList();
+        }
+    }
+
+    private PhysicalAddress toPhysicalAddress(String ip) {
+        try {
+            InetAddress inetAddress = InetAddress.getByName(ip);
+            return new IpAddress(inetAddress, bind_port);
+        } catch (Exception e) {
+            log.error("Failed to resolve IP: {}", ip, e);
+            return null;
+        }
+    }
+}
