@@ -1,147 +1,100 @@
-package com.example.jgroups;
+package com.example.jgroups.protocols;
 
+import com.example.jgroups.ecs.ECSDiscovery;
 import org.jgroups.*;
-import org.jgroups.conf.ClassConfigurator;
 import org.jgroups.protocols.Discovery;
 import org.jgroups.stack.IpAddress;
-import org.jgroups.util.Promise;
-import org.jgroups.util.Streamable;
+import org.jgroups.util.Responses;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.util.*;
-import java.util.concurrent.*;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Custom discovery protocol for ECS tasks
+ */
 public class ECS_PING extends Discovery {
 
-    public static final short ECS_PING_ID = 12345;
+    protected String clusterName = "your-ecs-cluster";
+    protected String serviceName = "your-service-name";
+    protected long refreshInterval = 10000; // 10 sec default
+    protected int discoveryPort = 7800;
 
-    static {
-        ClassConfigurator.addProtocol(ECS_PING_ID, ECS_PING.class);
-    }
-
-    private ScheduledExecutorService scheduler;
-    private ScheduledFuture<?> refreshTask;
-
-    // Refresh interval in seconds (can be configured)
-    private long refreshInterval = 30;
+    private ECSDiscovery ecsDiscovery;
+    private volatile List<IpAddress> currentIPs = new ArrayList<>();
+    private volatile Address localAddress;
 
     @Override
     public void init() throws Exception {
         super.init();
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.ecsDiscovery = new ECSDiscovery(clusterName, serviceName);
         startPeriodicRefresh();
     }
 
-    @Override
-    public void stop() {
-        super.stop();
-        if (refreshTask != null)
-            refreshTask.cancel(true);
-        if (scheduler != null)
-            scheduler.shutdownNow();
-    }
-
     private void startPeriodicRefresh() {
-        log.debug("ECS_PING: Starting periodic refresh every " + refreshInterval + "s");
-        refreshTask = scheduler.scheduleAtFixedRate(() -> {
-            log.debug("ECS_PING: Performing periodic refresh");
-            try {
-                findMembers(null, false);
-            } catch (Exception e) {
-                log.error("ECS_PING periodic refresh error", e);
+        Thread refresher = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    updateMembers();
+                    Thread.sleep(refreshInterval);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    log.error("Failed to update ECS IPs", e);
+                }
             }
-        }, refreshInterval, refreshInterval, TimeUnit.SECONDS);
+        }, "ECS_PING-Refresher");
+        refresher.setDaemon(true);
+        refresher.start();
+    }
+
+    private void updateMembers() {
+        List<String> ips = ecsDiscovery.getRunningTaskIPs();
+        List<IpAddress> updated = new ArrayList<>();
+        for (String ip : ips) {
+            try {
+                InetAddress inet = InetAddress.getByName(ip);
+                updated.add(new IpAddress(inet, discoveryPort));
+            } catch (Exception e) {
+                log.error("Invalid IP from ECS: " + ip, e);
+            }
+        }
+        currentIPs = updated;
+        log.debug("Refreshed ECS member IPs: " + currentIPs);
     }
 
     @Override
-    protected void findMembers(List<Address> members, boolean initial_discovery) {
-        log.debug("ECS_PING.findMembers: ECS discovery started");
+    protected void findMembers(List<Address> members, boolean initialDiscovery, Responses responses) {
+        List<PingData> discovered = new ArrayList<>();
+        PhysicalAddress myPhysical = (PhysicalAddress) down(new Event(Event.GET_PHYSICAL_ADDRESS, localAddress));
 
-        // Simulate ECS discovery: you should replace this with actual ECS metadata query or IP listing
-        List<PhysicalAddress> discovered = simulateECSDiscovery();
+        // Add ourselves
+        discovered.add(new PingData(localAddress, true, myPhysical));
 
-        // Notify discovered members to upper layers
-        for (PhysicalAddress addr : discovered) {
-            PingData pingData = new PingData(null, true, UUID.randomUUID(), addr);
-            PingRsp rsp = new PingRsp(addr, null, true, null);
-            up(new Event(Event.FIND_MBRS_OK, Collections.singletonList(rsp)));
+        for (IpAddress addr : currentIPs) {
+            if (addr.equals(myPhysical))
+                continue;
+
+            PingData data = new PingData(null, false, addr);
+            discovered.add(data);
         }
 
-        log.debug("ECS_PING.findMembers: discovery finished");
-    }
-
-    private List<PhysicalAddress> simulateECSDiscovery() {
-        List<PhysicalAddress> addresses = new ArrayList<>();
-        // Dummy list, replace with real IP resolution
-        addresses.add(new IpAddress("127.0.0.1", 7800));
-        // You could pull from ECS or service registry here
-        return addresses;
-    }
-
-    @Override
-    protected void sendGetMembersRequest(String cluster_name, Promise<JoinRsp> promise, boolean use_mcast) {
-        log.debug("ECS_PING.sendGetMembersRequest: no-op for ECS_PING");
-        // No-op. ECS_PING only uses ECS metadata for discovery
+        responses.receive(discovered);
+        responses.done();
     }
 
     @Override
     public Object up(Event evt) {
         switch (evt.getType()) {
-        case 1: // MSG = 1 in JGroups 4.x
-            Message msg = (Message) evt.getArg();
-            ECS_PING_Header hdr = msg.getHeader(ECS_PING_ID);
-
-            if (hdr != null) {
-                // This is a message specific to ECS_PING
-                log.info("Received ECS_PING message: " + msg);
-                handlePingMessage(msg, hdr);
-                return null; // consume it
-            }
-            break;
-    }
-
-    // Pass event up the stack if not handled
-    return up_prot.up(evt);
+            case Event.SET_LOCAL_ADDRESS:
+                localAddress = (Address) evt.getArg();
+                break;
+        }
+        return super.up(evt);
     }
 
     @Override
-    public String getName() {
-        return "ECS_PING";
-    }
-    
-    private void handlePingMessage(Message msg, ECS_PING_Header hdr) {
-        // Example: maybe you want to respond to the message
-        Address sender = msg.getSrc();
-    
-        Message response = new Message(sender);
-        response.setObject("PONG"); // You can send any serializable object
-        ECS_PING_Header responseHdr = new ECS_PING_Header(); // or a response-type header if needed
-    
-        response.putHeader(ECS_PING_ID, responseHdr);
-    
-        try {
-            down_prot.down(new Event(1, response)); // MSG = 1
-        } catch (Exception e) {
-            log.error("Failed to send ECS_PING response", e);
-        }
-    }
-    public static class ECS_PING_Header extends Header implements Streamable {
-
-        @Override
-        public void writeTo(DataOutput out) { }
-
-        @Override
-        public void readFrom(DataInput in) { }
-
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public String toString() {
-            return "ECS_PING_Header{}";
-        }
+    public boolean isDynamic() {
+        return true;
     }
 }
