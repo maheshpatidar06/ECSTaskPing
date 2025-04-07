@@ -62,6 +62,23 @@ public class ECS_PING extends Discovery {
         currentIPs = updated;
         log.debug("Refreshed ECS member IPs: " + currentIPs);
     }
+    private boolean sendPing(PhysicalAddress dest) {
+        try {
+            // Build header
+            ECS_PING_Header hdr = new ECS_PING_Header(ECS_PING_Header.PING_REQ);
+            Message msg = new Message(dest).putHeader(this.id, hdr);
+            msg.setFlag(Message.Flag.INTERNAL, Message.Flag.OOB);
+    
+            // Send and wait for response (simplified)
+            down(new Event(Event.MSG, msg));
+    
+            // Optional: implement some waiting mechanism or response collection here
+            return true;
+        } catch (Exception e) {
+            log.warn("Ping to " + dest + " failed", e);
+            return false;
+        }
+    }
 
     @Override
     protected void findMembers(List<Address> members, boolean initialDiscovery, Responses responses) {
@@ -74,8 +91,14 @@ public class ECS_PING extends Discovery {
         // Add others
         for (IpAddress addr : currentIPs) {
             if (addr.equals(myPhysical)) continue;
-            PingData data = new PingData(null, false, addr);
-            responses.addResponse(data);
+            boolean success = sendPing(addr); // Custom ping method
+        
+            if (success) {
+                System.out.println("[ECS_PING] Ping SUCCESS to: " + addr);
+                responses.addResponse(new PingData(null, false, addr));
+            } else {
+                System.out.println("[ECS_PING] Ping FAILED to: " + addr);
+            }
         }
         
         responses.done(); // Signal completion
