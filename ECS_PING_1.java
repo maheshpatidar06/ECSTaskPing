@@ -87,19 +87,45 @@ public class ECS_PING extends Discovery {
 
     @Override
     public Object up(Event evt) {
-        Message msg = (Message) evt.getArg();
-        ECS_PING_Header hdr = msg.getHeader(ECS_PING_ID);
-        if (hdr != null) {
-            log.debug("ECS_PING: received custom header");
-        }
-        return up_prot.up(evt);
+        switch (evt.getType()) {
+        case 1: // MSG = 1 in JGroups 4.x
+            Message msg = (Message) evt.getArg();
+            ECS_PING_Header hdr = msg.getHeader(ECS_PING_ID);
+
+            if (hdr != null) {
+                // This is a message specific to ECS_PING
+                log.info("Received ECS_PING message: " + msg);
+                handlePingMessage(msg, hdr);
+                return null; // consume it
+            }
+            break;
+    }
+
+    // Pass event up the stack if not handled
+    return up_prot.up(evt);
     }
 
     @Override
     public String getName() {
         return "ECS_PING";
     }
-
+    
+    private void handlePingMessage(Message msg, ECS_PING_Header hdr) {
+        // Example: maybe you want to respond to the message
+        Address sender = msg.getSrc();
+    
+        Message response = new Message(sender);
+        response.setObject("PONG"); // You can send any serializable object
+        ECS_PING_Header responseHdr = new ECS_PING_Header(); // or a response-type header if needed
+    
+        response.putHeader(ECS_PING_ID, responseHdr);
+    
+        try {
+            down_prot.down(new Event(1, response)); // MSG = 1
+        } catch (Exception e) {
+            log.error("Failed to send ECS_PING response", e);
+        }
+    }
     public static class ECS_PING_Header extends Header implements Streamable {
 
         @Override
