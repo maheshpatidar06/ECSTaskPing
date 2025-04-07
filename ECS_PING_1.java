@@ -65,22 +65,20 @@ public class ECS_PING extends Discovery {
 
     @Override
     protected void findMembers(List<Address> members, boolean initialDiscovery, Responses responses) {
-        List<PingData> discovered = new ArrayList<>();
-        PhysicalAddress myPhysical = (PhysicalAddress) down(new Event(Event.GET_PHYSICAL_ADDRESS, localAddress));
-
-        // Add ourselves
-        discovered.add(new PingData(localAddress, true, myPhysical));
-
+         PhysicalAddress myPhysical = (PhysicalAddress) down(new Event(Event.GET_PHYSICAL_ADDRESS, localAddress));
+        
+        // Add self
+        PingData selfPing = new PingData(localAddress, true, myPhysical);
+        responses.addResponse(selfPing);
+        
+        // Add others
         for (IpAddress addr : currentIPs) {
-            if (addr.equals(myPhysical))
-                continue;
-
+            if (addr.equals(myPhysical)) continue;
             PingData data = new PingData(null, false, addr);
-            discovered.add(data);
+            responses.addResponse(data);
         }
-
-        responses.receive(discovered);
-        responses.done();
+        
+        responses.done(); // Signal completion
     }
 
     @Override
