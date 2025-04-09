@@ -184,6 +184,40 @@ public class ECSOrLocalPing extends FILE_PING {
     protected void write(String clustername, UUID logical_addr, PhysicalAddress phys_addr, byte[] data) {
         memoryStore.put(logical_addr, new Tuple<>(phys_addr, data));
     }
+    @Override
+public void readAll(List<Address> members, String clusterName, Responses responses) {
+    log.debug("ECSPING: Reading all peers for cluster {}", clusterName);
+
+    try {
+        ECSNodeIPResolver resolver = new ECSNodeIPResolver();
+        List<String> ips = resolver.getPrivateIpsOfServiceTasks(); // Step 1: Get ECS peer IPs
+
+        for (String ip : ips) {
+            // Step 2: Create address
+            InetAddress inetAddr = InetAddress.getByName(ip);
+            PhysicalAddress physAddr = new IpAddress(inetAddr, bind_port); // bind_port from config
+
+            PingData data = new PingData(null, true, physAddr); // null logical Address for now
+            PingHeader hdr = new PingHeader(PingHeader.GET_MBRS_REQ)
+                    .clusterName(cluster_name);
+
+            Message msg = new Message(null, null, null)
+                    .putHeader(this.id, hdr)
+                    .setDest(null)
+                    .setSrc(local_addr)
+                    .setTransientFlag(Message.TransientFlag.DONT_LOOPBACK)
+                    .setFlag(Message.Flag.INTERNAL)
+                    .setBuffer(marshal(data));
+
+            msg.setDest(physAddr);
+            log.debug("ECSPING: Sending discovery ping to {}", ip);
+            down(msg); // Step 3: Send the ping to the peer IP
+        }
+
+    } catch (Exception e) {
+        log.error("ECSPING readAll() failed", e);
+    }
+}
 
     @Override
     protected void remove(String clustername, UUID addr) {
