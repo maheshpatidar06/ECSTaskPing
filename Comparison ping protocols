@@ -1,0 +1,214 @@
+Great idea! Creating a well-structured Confluence page will make your POCs reusable and show clear technical depth. Here’s a suggested structure and content outline you can directly copy and paste, with detailed explanations for each discovery mechanism:
+
+
+---
+
+JGroups Discovery Protocols - AWS Fargate & ECS POC Comparison
+
+Overview
+
+This document outlines the evaluation and implementation details of various JGroups discovery protocols used to enable clustering in Infinispan running on AWS ECS with Fargate. The goal was to identify a production-ready, cloud-native approach that ensures high availability and fault tolerance without relying on unsupported multicast in AWS.
+
+
+---
+
+1. TCP_PING
+
+Purpose: Static list-based unicast discovery.
+
+How to Use:
+
+<TCPPING initial_hosts="10.0.0.1[7800],10.0.0.2[7800]" port_range="5" />
+<TCP bind_port="7800" />
+
+Where to Use:
+
+In controlled environments (EC2, static IPs, or minimal auto-scaling).
+
+
+Restrictions:
+
+Not suitable for auto-scaling (IP changes).
+
+Requires hardcoded or pre-known IPs.
+
+
+Ranking: Low (too static, poor flexibility for Fargate).
+
+
+
+---
+
+2. UDP / MPING (Multicast-based)
+
+Purpose: Dynamic node discovery using multicast.
+
+How to Use:
+
+<UDP ... />
+<MPING />
+
+Where to Use:
+
+On-prem or environments with multicast support.
+
+
+Restrictions:
+
+NOT supported in AWS VPC / Fargate / ECS.
+
+Multicast packets are dropped in AWS networking.
+
+
+Ranking: Not usable in AWS (ruled out for Fargate).
+
+
+
+---
+
+3. S3_PING
+
+Purpose: Store discovery metadata in S3 bucket.
+
+How to Use:
+
+<S3_PING location="my-discovery-bucket" access_key="..." secret_access_key="..." />
+
+Where to Use:
+
+AWS ECS/Fargate if S3 bucket and IAM permissions are well-defined.
+
+
+Restrictions:
+
+Requires custom build or plugin (not in default JGroups).
+
+Latency is higher than DB/DNS.
+
+Needs IAM roles and S3 lifecycle management.
+
+
+Ranking: Medium — viable but not preferred due to performance.
+
+
+
+---
+
+4. JDBC_PING
+
+Purpose: Uses a shared DB table to record participating nodes.
+
+How to Use:
+
+<JDBC_PING connection_url="jdbc:mysql://mydb:3306/jgroups"
+           driver="com.mysql.cj.jdbc.Driver"
+           user_name="user"
+           password="pass" />
+
+Where to Use:
+
+Small clusters, environments already using RDS.
+
+
+Restrictions:
+
+DB becomes a critical dependency.
+
+Slightly slower than DNS.
+
+
+Ranking: Medium-High — good if DB exists.
+
+
+
+---
+
+5. DNS_PING
+
+Purpose: Uses ECS Service Discovery (Route 53) to resolve peer IPs.
+
+How to Use:
+
+Enable Service Discovery when creating ECS service.
+
+JGroups config:
+
+<DNS_PING dns_query="infinispan.my-namespace.local" />
+<TCP bind_port="7800" />
+
+
+Where to Use:
+
+ECS + Fargate with service discovery enabled.
+
+
+Restrictions:
+
+TTL and DNS caching delay during scale-down.
+
+Requires correct namespace setup.
+
+
+Ranking: High — Cloud-native and simple setup.
+
+
+
+---
+
+6. Custom ECS_PING (Built In-House)
+
+Purpose: Queries ECS API to dynamically fetch running task IPs.
+
+How to Use:
+
+Implemented using AWS SDK in a custom JGroups PING protocol.
+
+Filter tasks by cluster + service name.
+
+Populate peer list dynamically.
+
+
+Where to Use:
+
+Best for full control, autoscaling, minimal dependencies.
+
+
+Restrictions:
+
+Requires custom development + maintenance.
+
+Needs task role with ECS ListTasks, DescribeTasks permissions.
+
+
+Ranking: Top — Best balance of flexibility, control, and cloud-native design.
+
+
+
+---
+
+Final Comparison Table
+
+
+---
+
+Conclusion & Recommendation
+
+For a cloud-native, production-ready Infinispan cluster on AWS Fargate, the top two contenders are:
+
+DNS_PING for its simplicity and native ECS support.
+
+ECS_PING for advanced use cases needing real-time discovery, better control, and seamless scaling.
+
+
+Between them:
+
+Use DNS_PING if you're okay with slight DNS TTL delay.
+
+Use ECS_PING if you want more accurate and real-time node discovery.
+
+
+
+---
+
+Would you like me to export this as a Word or Confluence markdown table for pasting directly into your space?
+
