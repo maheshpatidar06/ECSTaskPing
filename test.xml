@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:13.0 https://infinispan.org/schemas/infinispan-config-13.0.xsd"
+    xmlns="urn:infinispan:config:13.0">
+
+    <cache-container name="default">
+        <!-- Global configuration -->
+        <transport cluster="infinispan-cluster" stack="tcp"/>
+
+        <!-- Define a replicated cache configuration -->
+        <replicated-cache name="myCache" mode="SYNC">
+            <!-- Transaction settings -->
+            <transaction 
+                mode="TRANSACTIONAL"
+                locking="OPTIMISTIC"
+                transaction-manager-lookup="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
+                auto-commit="true"
+                stop-timeout="30000"
+                reaper-interval="10000"
+                completed-timeout="60000"
+                use-synchronization="true"
+                recovery="false"
+                deadlock-detection="true"/>
+
+            <!-- Locking behavior -->
+            <locking
+                acquire-timeout="15000"   <!-- Wait up to 15 seconds to acquire a lock -->
+                concurrency-level="1000"
+                isolation="REPEATABLE_READ"
+                striping="false"/>
+
+            <!-- Expiration settings (optional) -->
+            <expiration 
+                lifespan="600000" 
+                max-idle="300000"/>
+
+            <!-- Memory settings (optional) -->
+            <memory max-count="100000"/>
+        </replicated-cache>
+
+        <!-- JGroups transport stack (TCP based) -->
+        <jgroups>
+            <stack name="tcp">
+                <TCP bind_port="7800"/>
+                <TCPPING timeout="3000"
+                         initial_hosts="host1[7800],host2[7800]"
+                         port_range="5"/>
+                <MERGE3/>
+                <FD_SOCK/>
+                <FD_ALL timeout="3000" interval="1000"/>
+                <VERIFY_SUSPECT timeout="1500"/>
+                <BARRIER/>
+                <pbcast.NAKACK2 use_mcast_xmit="false" xmit_interval="1000" xmit_table_num_rows="50" xmit_table_msgs_per_row="1024"/>
+                <UNICAST3/>
+                <pbcast.STABLE desired_avg_gossip="20000"/>
+                <pbcast.GMS print_local_addr="true" join_timeout="3000" view_bundling="true"/>
+            </stack>
+        </jgroups>
+    </cache-container>
+</infinispan>
