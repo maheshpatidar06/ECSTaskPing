@@ -1,0 +1,881 @@
+Here’s a curated list of the Top 50 Interview Questions with short, concise answers, specifically designed to evaluate a 10+ year experienced professional with the following tech stack: Java, Spring Boot, JUnit, REST API, Kafka, AWS, Terraform, SQL/PLSQL, and some analytics/general questions.
+
+
+---
+
+Java (Core & Advanced)
+
+1. What are the main principles of OOP?
+Encapsulation, Inheritance, Polymorphism, Abstraction.
+
+
+2. Difference between HashMap and ConcurrentHashMap?
+ConcurrentHashMap is thread-safe and allows concurrent read/writes; HashMap is not.
+
+
+3. What is Java memory model (JMM)?
+JMM defines how threads interact through memory and ensures visibility and ordering of variables.
+
+
+4. Explain volatile vs synchronized.
+volatile ensures visibility, synchronized ensures visibility + atomicity.
+
+
+5. What is the use of CompletableFuture?
+For asynchronous, non-blocking computation with better composability.
+
+
+6. When to use Optional in Java 8+?
+To avoid null and clearly represent optional return values.
+
+
+7. What’s the difference between == and .equals()?
+== checks reference equality; .equals() checks value equality.
+
+
+8. What are functional interfaces?
+Interfaces with a single abstract method, e.g., Runnable, Predicate.
+
+
+9. What is the Stream API in Java 8+?
+A declarative way to process collections in a functional style.
+
+
+10. Difference between checked and unchecked exceptions?
+Checked: compile-time (e.g., IOException). Unchecked: runtime (e.g., NullPointerException).
+
+
+
+
+---
+
+Spring Boot & Spring Framework
+
+11. How does Spring Dependency Injection work?
+Objects are created and injected via constructors/setters by the Spring container.
+
+
+12. Difference between @Component, @Service, @Repository?
+Semantically different for readability; functionally similar.
+
+
+13. What is the purpose of @Transactional?
+Manages transaction boundaries declaratively.
+
+
+14. Explain Spring Boot auto-configuration.
+Automatically configures beans based on classpath and properties.
+
+
+15. What is Spring Actuator?
+Provides production-ready features like metrics, health checks.
+
+
+16. What are profiles in Spring Boot?
+Used to segregate environment-specific configurations (e.g., dev, prod).
+
+
+17. Difference between RestController and Controller?
+RestController = @Controller + @ResponseBody, used for REST APIs.
+
+
+18. How is exception handling done in Spring Boot REST APIs?
+Using @ControllerAdvice and @ExceptionHandler.
+
+
+19. How to secure a Spring Boot application?
+Using Spring Security with roles, OAuth2, JWT.
+
+
+20. How to test Spring Boot application with JUnit?
+Use @SpringBootTest, @WebMvcTest, Mockito, and MockMvc.
+
+
+
+
+---
+
+REST API
+
+21. What is the difference between PUT and PATCH?
+PUT replaces the resource; PATCH partially updates it.
+
+
+22. What is HATEOAS?
+Hypermedia as the engine of application state—adds links to responses.
+
+
+23. How to version a REST API?
+URI versioning (/v1/users), Header versioning, or Query param.
+
+
+24. How to handle idempotency in REST?
+Use idempotent HTTP methods like GET, PUT, DELETE; track request identifiers.
+
+
+25. What are REST constraints?
+Statelessness, Client-server, Cacheable, Uniform interface, Layered system, Code on demand (optional).
+
+
+
+
+---
+
+Kafka
+
+26. What is the role of Kafka consumer group?
+Enables parallel data processing while ensuring each message is processed once per group.
+
+
+27. What are Kafka partitions and why are they important?
+Allow parallelism and scalability; each partition is processed independently.
+
+
+28. Explain Kafka offset and how to manage it?
+Offset is a unique ID of a record in a partition. Can be committed manually or automatically.
+
+
+29. Difference between at-most-once, at-least-once, and exactly-once?
+Delivery semantics:
+
+
+
+At-most-once: may miss
+
+At-least-once: duplicates possible
+
+Exactly-once: no loss or duplication.
+
+
+30. How does Kafka handle fault tolerance?
+Replication of partitions across brokers.
+
+
+
+
+---
+
+AWS
+
+31. What is the difference between ECS and EKS?
+ECS = container orchestration by AWS; EKS = managed Kubernetes.
+
+
+32. What is an EC2 instance?
+A virtual server in the cloud for running applications.
+
+
+33. What is an S3 bucket?
+Object storage service for files, backups, etc.
+
+
+34. How does IAM work in AWS?
+Provides identity and access control for AWS resources via roles and policies.
+
+
+35. What is the difference between security groups and NACLs?
+Security groups = stateful; NACLs = stateless.
+
+
+
+
+---
+
+Terraform
+
+36. What is Terraform state and why is it important?
+Tracks infrastructure deployed, used for diff calculation and updates.
+
+
+37. What is the use of terraform plan and apply?
+plan: shows proposed changes; apply: applies them.
+
+
+38. What is the purpose of terraform module?
+Reuse infrastructure as code blocks.
+
+
+39. How to manage secrets in Terraform?
+Use Vault, SSM, or environment variables; avoid storing secrets in code.
+
+
+40. Difference between provisioner and remote-exec?
+Both configure resources post-creation; remote-exec runs remote commands.
+
+
+
+
+---
+
+SQL / PL/SQL
+
+41. What is normalization?
+Organizing data to reduce redundancy and improve integrity.
+
+
+42. What’s the difference between INNER JOIN and LEFT JOIN?
+INNER JOIN: matches both sides. LEFT JOIN: keeps left side even if no match.
+
+
+43. What are indexes and when to use them?
+Improve query speed; use on searchable, filterable columns.
+
+
+44. What is a stored procedure?
+Precompiled SQL block with logic and flow control.
+
+
+45. How to optimize slow SQL queries?
+Use EXPLAIN plan, indexes, avoid SELECT *, reduce joins/subqueries.
+
+
+
+
+---
+
+Analytics & General
+
+46. How do you measure application performance?
+Using tools like JMeter, Prometheus, Grafana, logs, APMs.
+
+
+47. What is observability in distributed systems?
+Ability to understand system internals via logs, metrics, traces.
+
+
+48. What is your approach to debugging production issues?
+Reproduce, logs, metrics, traces, code review, alerts correlation.
+
+
+49. How do you ensure code quality in your team?
+Code reviews, unit tests, static code analysis, CI/CD checks.
+
+
+50. What’s your experience mentoring or leading a team?
+Regular 1:1s, pairing, setting coding standards, guiding through challenges.
+
+
+
+
+---
+
+Based on your past 1.5 years of queries and preparation topics, here's a tailored list of the top 50 interview preparation items you’ve covered or asked about. This includes concepts, tools, and practical questions spanning your core tech stack and areas of interest.
+
+
+---
+
+Top 50 Interview Prep Topics You Covered
+
+Java & Core Concepts
+
+1. Java 8 vs 17 vs 21 features
+
+
+2. Java Memory Model (JMM)
+
+
+3. volatile vs synchronized
+
+
+4. CompletableFuture and async handling
+
+
+5. Functional interfaces and Stream API
+
+
+6. JVM internals (GC, class loading, memory areas)
+
+
+7. Exception handling best practices
+
+
+8. Immutability and thread safety
+
+
+9. Design patterns (Singleton, Factory, Builder)
+
+
+10. Object equality (== vs .equals() vs hashCode())
+
+
+
+Spring Boot & Spring Framework
+
+11. Component scanning and bean scopes
+
+
+12. Spring Boot Auto-configuration
+
+
+13. @Transactional deep dive and pitfalls
+
+
+14. Spring Profiles for environment-specific setup
+
+
+15. Exception handling using @ControllerAdvice
+
+
+16. Actuator endpoints and custom health checks
+
+
+17. JUnit + Mockito usage for REST and service layers
+
+
+18. Spring Security basics and JWT integration
+
+
+19. Application.properties vs YAML configuration
+
+
+20. Integration of Spring Boot with Kafka, AWS
+
+
+
+REST API & Microservices
+
+21. Idempotency and statelessness in REST APIs
+
+
+22. REST API versioning strategies
+
+
+23. HTTP methods and status code best practices
+
+
+24. Contract-first API development (OpenAPI/Swagger)
+
+
+25. Circuit breaker and retry using Resilience4j
+
+
+
+Kafka
+
+26. Kafka architecture and flow
+
+
+27. Producer/consumer configuration tuning
+
+
+28. Kafka delivery semantics (at-least/most/exactly once)
+
+
+29. Partitioning, ordering, and offset handling
+
+
+30. Kafka + Spring Boot integration patterns
+
+
+
+AWS & Cloud
+
+31. ECS vs EKS vs EC2 deployment models
+
+
+32. S3 + Athena + Glue + JSON data querying pipeline
+
+
+33. IAM roles and security policies
+
+
+34. CloudWatch logging and alerting
+
+
+35. Best practices for AWS credentials management
+
+
+
+Terraform & IaC
+
+36. Terraform modules and workspaces
+
+
+37. Remote state backend and locking
+
+
+38. Managing secrets securely in Terraform
+
+
+39. ECS deployment using Terraform
+
+
+40. Full Terraform setup for AWS ECS + Infinispan cluster
+
+
+
+Distributed Caching & Infinispan
+
+41. Infinispan single-node vs replicated cache
+
+
+42. Infinispan JGroups clustering with TCP/JDBC/ECS_PING
+
+
+43. Embedded vs remote Infinispan modes
+
+
+44. Custom discovery protocols for ECS clustering
+
+
+45. Performance testing Infinispan cache (benchmarking)
+
+
+
+SQL / PL/SQL
+
+46. SQL query tuning (EXPLAIN plan usage)
+
+
+47. Window functions and analytics SQL
+
+
+48. Writing and optimizing stored procedures
+
+
+49. Indexing strategies for large datasets
+
+
+50. Data consistency and transaction isolation levels
+
+
+
+
+---
+Here is a refined list of top 50 interview questions with concise answers, tailored from your past 1.5 years of search history and preparation. It covers Java, Spring Boot, Kafka, REST API, AWS, Terraform, SQL/PLSQL, and Infinispan + analytics topics.
+
+
+---
+
+Java & Core Concepts
+
+1. What are major features added in Java 8, 17, and 21?
+Java 8: Lambdas, Streams, Optional.
+Java 17: Sealed classes, Pattern Matching for switch.
+Java 21: Virtual threads, Record patterns, String templates.
+
+
+2. How does the Java Memory Model (JMM) work?
+It defines visibility and ordering rules for variables shared between threads.
+
+
+3. Difference between volatile and synchronized?
+volatile ensures visibility; synchronized ensures atomicity and visibility.
+
+
+4. When to use CompletableFuture?
+For async programming and composing multiple tasks without blocking.
+
+
+5. What is a functional interface?
+An interface with one abstract method, used for lambda expressions.
+
+
+6. How does garbage collection work in Java?
+JVM reclaims memory by removing unreachable objects from the heap.
+
+
+7. Why is immutability preferred in multi-threaded apps?
+It ensures thread safety without explicit synchronization.
+
+
+8. How do equals() and hashCode() work together?
+Equal objects must have equal hashcodes; crucial for collections like HashMap.
+
+
+9. What is method overloading vs overriding?
+Overloading: same method name, different params.
+Overriding: subclass redefines superclass method.
+
+
+10. Explain Builder vs Factory pattern.
+Builder: constructs complex objects step by step.
+Factory: creates objects based on logic/params.
+
+
+
+
+---
+
+Spring Boot & Spring Framework
+
+11. What is dependency injection in Spring?
+It allows the container to inject required dependencies into components automatically.
+
+
+12. Difference between @Component, @Service, @Repository?
+Functionally similar; semantically categorized for better clarity and exception handling.
+
+
+13. How does Spring Boot auto-configuration work?
+Based on classpath, default beans are configured unless explicitly overridden.
+
+
+14. What is the use of @Transactional?
+Manages commit/rollback automatically for methods involving DB operations.
+
+
+15. How do Spring Profiles work?
+Load environment-specific configurations using @Profile or property files.
+
+
+16. How to handle exceptions globally in Spring Boot?
+Using @ControllerAdvice + @ExceptionHandler for centralized handling.
+
+
+17. What does @RestController do?
+Combines @Controller and @ResponseBody to return JSON/XML directly.
+
+
+18. How to test Spring Boot REST APIs?
+Use @WebMvcTest with MockMvc and Mockito for isolation and unit testing.
+
+
+19. What are actuator endpoints used for?
+Expose runtime info like /health, /metrics, /env for monitoring.
+
+
+20. How do you secure a REST API with Spring Security?
+Use filters, roles, and JWT/OAuth2 for authentication and authorization.
+
+
+
+
+---
+
+REST API & Microservices
+
+21. What is idempotency in REST?
+Same request produces the same result when repeated (e.g., PUT).
+
+
+22. How to version REST APIs?
+Through URL (/v1/), header (Accept), or parameter-based approaches.
+
+
+23. Difference between PUT and PATCH?
+PUT replaces the entire resource; PATCH partially updates fields.
+
+
+24. What is OpenAPI/Swagger?
+Specification and UI to document and test REST APIs.
+
+
+25. How to handle failure in microservices?
+Use retries, circuit breakers (Resilience4j), and fallback logic.
+
+
+
+
+---
+
+Kafka
+
+26. What is Kafka and its architecture?
+A distributed event streaming platform with topics, partitions, brokers, producers, consumers.
+
+
+27. What are Kafka partitions?
+Sub-units of a topic for parallelism and scalability.
+
+
+28. How does offset management work in Kafka?
+Keeps track of consumed messages; committed manually or auto.
+
+
+29. What is Kafka's delivery guarantee?
+At-most-once, at-least-once, exactly-once depending on config and logic.
+
+
+30. How to use Kafka with Spring Boot?
+Use spring-kafka, configure @KafkaListener, producer factories, and topic configs.
+
+
+
+
+---
+
+AWS
+
+31. What is ECS and how is it used?
+AWS-managed container orchestration for running Docker tasks.
+
+
+32. Difference between ECS and EKS?
+ECS = native AWS orchestrator; EKS = managed Kubernetes on AWS.
+
+
+33. How does Athena work with S3 and Glue?
+Athena queries structured/unstructured data in S3 using Glue Data Catalog schema.
+
+
+34. How to manage access in AWS?
+IAM roles, users, and policies define resource permissions.
+
+
+35. How to monitor applications in AWS?
+Use CloudWatch for logs, metrics, alarms, and dashboards.
+
+
+
+
+---
+
+Terraform
+
+36. What is Terraform and how is it used?
+Infrastructure-as-code tool for automating cloud resource provisioning.
+
+
+37. How does Terraform state work?
+Maintains deployed resource info to calculate diffs for updates.
+
+
+38. What are modules in Terraform?
+Reusable blocks of configuration for infrastructure.
+
+
+39. How to secure secrets in Terraform?
+Use SSM Parameter Store, Secrets Manager, or environment variables.
+
+
+40. How to provision ECS using Terraform?
+Use aws_ecs_cluster, aws_ecs_task_definition, and aws_ecs_service resources.
+
+
+
+
+---
+
+Infinispan + JGroups
+
+41. What is Infinispan used for?
+Distributed caching and data grid solution for fault tolerance and fast access.
+
+
+42. How to configure Infinispan in replicated mode?
+Use replicated-cache config with appropriate transport and cluster settings.
+
+
+43. What is JGroups and its role in Infinispan?
+JGroups handles transport and cluster membership/discovery.
+
+
+44. How does ECS_PING work in JGroups?
+Custom discovery protocol to fetch IPs of running ECS tasks dynamically.
+
+
+45. How to switch between local and replicated mode dynamically?
+Use profile-based config or property flags to choose cache mode.
+
+
+
+
+---
+
+SQL / PLSQL
+
+46. What is indexing and when to use it?
+Speeds up searches and filters; use on frequently queried columns.
+
+
+47. Difference between INNER JOIN and LEFT JOIN?
+INNER: returns matching rows.
+LEFT: returns all from left, with NULLs if no match on right.
+
+
+48. How to optimize slow SQL queries?
+Use EXPLAIN plan, avoid SELECT *, index wisely, reduce nested queries.
+
+
+49. What are window functions?
+Perform calculations across a result set, like ROW_NUMBER(), RANK().
+
+
+50. How to handle large datasets in SQL efficiently?
+Pagination, partitioning, batch processing, indexing, CTEs.
+
+
+
+
+---
+
+Here are 10 practical interview questions with concise answers, tailored to your stack (Java, Spring Boot, Kafka, AWS, Terraform, SQL, Infinispan, JUnit). These go beyond theory and test applied knowledge.
+
+
+---
+
+1. Rate Limiter for REST API in Spring Boot
+
+Q: How do you implement a rate limiter (e.g., 5 requests per user per minute)?
+
+A:
+Use Bucket4j or Redis-based token bucket. Example using Bucket4j:
+
+Bucket bucket = Bucket4j.builder()
+    .addLimit(Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1))))
+    .build();
+
+In controller, check bucket.tryConsume(1) and return 429 if false.
+
+
+---
+
+2. Retry Logic in Kafka Consumer
+
+Q: How to retry message processing 3 times in Kafka before sending it to a dead letter topic?
+
+A:
+Use SeekToCurrentErrorHandler with RetryTemplate:
+
+factory.setErrorHandler(new SeekToCurrentErrorHandler(
+    new DeadLetterPublishingRecoverer(kafkaTemplate), 3));
+
+Configure consumer to forward failed messages after retries to DLQ.
+
+
+---
+
+3. Upload JSON to S3 and Query via Athena
+
+Q: How do you upload data to S3 and query it with Athena using Glue?
+
+A:
+
+Upload JSON via AWS SDK (PutObjectRequest).
+
+Use Glue Crawler to infer schema.
+
+Query with Athena:
+
+
+SELECT * FROM s3_table WHERE year = '2024';
+
+
+---
+
+4. JUnit Test for External API Call
+
+Q: Write a test for a service that calls a REST API and stores data.
+
+A:
+
+@Mock RestTemplate restTemplate;
+@Mock Repo repo;
+@InjectMocks MyService service;
+
+@Test
+void testExternalCall() {
+  when(restTemplate.getForObject(...)).thenReturn(new Data(...));
+  service.callAndStore();
+  verify(repo).save(any(Data.class));
+}
+
+
+---
+
+5. ECS Deployment Using Terraform
+
+Q: How to deploy a Dockerized Spring Boot app on ECS via Terraform?
+
+A:
+
+resource "aws_ecs_service" "app" {
+  name = "my-app"
+  task_definition = aws_ecs_task_definition.app.arn
+  launch_type = "FARGATE"
+}
+
+Also define aws_ecs_task_definition, aws_lb, aws_ecs_cluster.
+
+
+---
+
+6. Dual-mode Infinispan Cache (Local/Replicated)
+
+Q: How to configure Infinispan to run in local or replicated mode based on profile?
+
+A:
+In application-dev.yml:
+
+infinispan.cache.mode: LOCAL
+
+In application-prod.yml:
+
+infinispan.cache.mode: REPL_SYNC
+
+Load config based on active profile and configure CacheManager programmatically.
+
+
+---
+
+7. Optimize SQL with 100M+ Rows
+
+Q: How do you handle slow aggregations on a 100M-row table?
+
+A:
+
+Create indexes on filter/group columns.
+
+Use materialized views or pre-aggregated summary tables.
+
+Partition table by date or region.
+
+
+
+---
+
+8. Create a Custom Spring Boot Starter
+
+Q: How to package common code as a Spring Boot starter?
+
+A:
+
+Create a separate module with META-INF/spring.factories:
+
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.mycompany.autoconfig.MyAutoConfiguration
+
+Annotate config with @Configuration and @ConditionalOnProperty.
+
+
+
+---
+
+9. Secure REST API Using JWT
+
+Q: How do you implement stateless authentication using JWT in Spring Boot?
+
+A:
+
+Generate JWT on login and send to client.
+
+On every request, validate JWT in filter (OncePerRequestFilter) and set authentication in context.
+
+Use UsernamePasswordAuthenticationToken.
+
+
+
+---
+
+10. Ensure Consistency in Kafka to RDS + Elasticsearch
+
+Q: How to reliably write Kafka events to both RDS and Elasticsearch?
+
+A:
+Use Transactional Outbox Pattern:
+
+Store event in RDS outbox table inside same DB transaction.
+
+Use CDC (e.g., Debezium) to publish to Kafka.
+
+A Kafka consumer reads and pushes to Elasticsearch.
+This decouples write and indexing, ensuring consistency.
+
+
+
+---
+
+Would you like a PDF or code snippet pack with these examples?
+
